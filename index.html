@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <title>Моят Филмов Каталог</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f9; padding: 20px; }
+        .movie-card { background: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .movie-title { font-size: 20px; font-weight: bold; color: #333; }
+        button { padding: 10px 15px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+    </style>
+</head>
+<body>
+
+    <h1>🎬 Моят Филмов Каталог</h1>
+    <button onclick="loadMovies()">Зареди филмите от сървъра</button>
+
+    <div id="moviesContainer" style="margin-top: 20px;">
+        </div>
+
+    <script>
+        // ВНИМАНИЕ: Увери се, че портът тук е същият като този на твоя сървър!
+        const apiUrl = 'http://localhost:5014/api/movies'; 
+
+        async function loadMovies() {
+            try {
+                // Изтегляме данните от C# сървъра
+                const response = await fetch(apiUrl);
+                const movies = await response.json();
+                
+                const container = document.getElementById('moviesContainer');
+                container.innerHTML = ''; // Изчистваме контейнера
+
+                if (movies.length === 0) {
+                    container.innerHTML = '<p>Няма намерени филми.</p>';
+                    return;
+                }
+
+                // За всеки филм създаваме по една "картичка" на екрана
+                movies.forEach(movie => {
+                    const movieDiv = document.createElement('div');
+                    movieDiv.className = 'movie-card';
+                    movieDiv.innerHTML = `
+                        <div class="movie-title">${movie.title} (${movie.releaseYear})</div>
+                        <div>Режисьор: ${movie.director} | Жанр: ${movie.genre} | Рейтинг: ⭐ ${movie.rating}</div>
+                    `;
+                    container.appendChild(movieDiv);
+                });
+            } catch (error) {
+                console.error('Грешка при връзката със сървъра:', error);
+                alert('Неуспешна връзка със сървъра! Провери дали dotnet сървърът работи.');
+            }
+        }
+    </script>
+
+</body>
+</html>
